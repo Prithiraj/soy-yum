@@ -1,0 +1,82 @@
+{
+  "logo": {
+    "url": "https://ugc.production.linktr.ee/2a7c5e87-3b0d-4e26-9618-23264a04687e_Soy-Yum-Logo-05.png",
+    "alt": "Soy Yum",
+    "caption": "Brand-linked logo",
+    "source": "https://linktr.ee/soyyumkol",
+    "rightsholder": "Not independently confirmed; brand/listing publication is not a reuse licence.",
+    "license_status": "unconfirmed",
+    "production_approved": false,
+    "reference_id": "brand-0"
+  },
+  "sushi": {
+    "url": "https://b.zmtcdn.com/data/pictures/chains/2/21085332/f01c847402f17579d4364e0b5d16e612.jpeg",
+    "alt": "Sushi rolls on a white plate at a wooden table, with the Soy Yum mark in the corner.",
+    "caption": "Sushi from the Soy Yum gallery",
+    "source": "https://www.zomato.com/kolkata/soy-yum-hindustan-park/photos",
+    "rightsholder": "Not independently confirmed; brand/listing publication is not a reuse licence.",
+    "license_status": "unconfirmed",
+    "production_approved": false,
+    "reference_id": "gallery-3"
+  },
+  "sushi-table": {
+    "url": "https://b.zmtcdn.com/data/pictures/chains/2/21085332/6413fef33172141bd83b2e6ae7a8723e.jpg",
+    "alt": "A sushi platter on a table in Soy Yum.",
+    "caption": "At the sushi bar",
+    "source": "https://www.zomato.com/kolkata/soy-yum-hindustan-park/photos",
+    "rightsholder": "Not independently confirmed; brand/listing publication is not a reuse licence.",
+    "license_status": "unconfirmed",
+    "production_approved": false,
+    "reference_id": "gallery-15"
+  },
+  "bbq": {
+    "url": "https://b.zmtcdn.com/data/pictures/chains/2/21085332/5b2bdd54c445f7b4ca9e7708ae6e3cba.jpeg",
+    "alt": "A tabletop Korean barbecue grill surrounded by dishes and accompaniments at Soy Yum.",
+    "caption": "The Korean BBQ table",
+    "source": "https://www.zomato.com/kolkata/soy-yum-hindustan-park/photos",
+    "rightsholder": "Not independently confirmed; brand/listing publication is not a reuse licence.",
+    "license_status": "unconfirmed",
+    "production_approved": false,
+    "reference_id": "gallery-19"
+  },
+  "cheesecake": {
+    "url": "https://b.zmtcdn.com/data/pictures/chains/2/21085332/021cbebca9fbd5baefe45057a7d4aaa6.jpeg",
+    "alt": "A Japanese-style cheesecake and a slice on a white plate, photographed for Soy Yum.",
+    "caption": "Something sweet",
+    "source": "https://www.zomato.com/kolkata/soy-yum-hindustan-park/photos",
+    "rightsholder": "Not independently confirmed; brand/listing publication is not a reuse licence.",
+    "license_status": "unconfirmed",
+    "production_approved": false,
+    "reference_id": "gallery-16"
+  },
+  "room": {
+    "url": "https://b.zmtcdn.com/data/pictures/2/21085332/b34988211bcee45b91141dd0dfb03911.jpeg",
+    "alt": "Wooden table, cane chairs and a copper-toned grill hood at the Hindustan Park restaurant.",
+    "caption": "A seat at Hindustan Park",
+    "source": "https://www.zomato.com/kolkata/soy-yum-hindustan-park/photos",
+    "rightsholder": "Not independently confirmed; brand/listing publication is not a reuse licence.",
+    "license_status": "unconfirmed",
+    "production_approved": false,
+    "reference_id": "branch-0"
+  },
+  "space": {
+    "url": "https://b.zmtcdn.com/data/pictures/2/21085332/9b8745b8bfd48cc0f23874cc6b8c21ee.jpg",
+    "alt": "The Hindustan Park dining room with wooden tables, cane chairs, artwork and a display counter.",
+    "caption": "Inside Soy Yum, Hindustan Park",
+    "source": "https://www.zomato.com/kolkata/soy-yum-hindustan-park/photos",
+    "rightsholder": "Not independently confirmed; brand/listing publication is not a reuse licence.",
+    "license_status": "unconfirmed",
+    "production_approved": false,
+    "reference_id": "branch-1"
+  },
+  "ramen": {
+    "url": "https://b.zmtcdn.com/data/pictures/chains/2/21085332/a85a154afe824b51cb3f1670778de383.jpeg",
+    "alt": "A bowl of noodles and garnishes in Soy Yum\u2019s published food photography.",
+    "caption": "Warm bowls, Soy Yum style",
+    "source": "https://www.zomato.com/kolkata/soy-yum-hindustan-park/photos",
+    "rightsholder": "Not independently confirmed; brand/listing publication is not a reuse licence.",
+    "license_status": "unconfirmed",
+    "production_approved": false,
+    "reference_id": "gallery-10"
+  }
+}

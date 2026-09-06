@@ -1,0 +1,8 @@
+_site/
+.cache/
+_preview/
+test-results/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,7 @@
+[
+  {"name":"Spicy salmon maki","category":"sushi","label":"Sushi bar","description":"Salmon maki with a spicy, crunchy topping.","source":"editorial","source_date":"9 May 2024"},
+  {"name":"Buta negima","category":"warm","label":"Skewers","description":"Pork and celery skewers with Japanese-style yaki sauce.","source":"editorial","source_date":"9 May 2024"},
+  {"name":"Spicy chicken miso ramen","category":"warm","label":"Warm bowls","description":"Ramen with chicken, egg and a spicy broth.","source":"editorial","source_date":"9 May 2024"},
+  {"name":"Korean BBQ","category":"bbq","label":"At the table","description":"A tabletop-grill experience. Ask about the current selection and available grill tables.","source":"brand_source","source_date":"6 September 2026"},
+  {"name":"Japanese cheesecake","category":"bakery","label":"Asian bakery","description":"A soft Japanese-style cheesecake from the in-house bakery.","source":"editorial","source_date":"9 May 2024"}
+]
