@@ -1,0 +1,83 @@
+name: Inspect research assets
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/research-assets.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Collect publicly published source references
+        run: |
+          python -m pip install --quiet pillow requests beautifulsoup4
+          mkdir -p research/images
+          cat > /tmp/inspect.py <<'PY'
+          import requests, re, json, pathlib, html
+          from bs4 import BeautifulSoup
+          from PIL import Image, ImageOps, ImageDraw
+          root=pathlib.Path('research')
+          sources={
+            'brand':'https://linktr.ee/soyyumkol',
+            'branch':'https://www.zomato.com/kolkata/soy-yum-hindustan-park',
+            'gallery':'https://www.zomato.com/kolkata/soy-yum-hindustan-park/photos',
+            'editorial':'https://www.indulgexpress.com/food/food-calcutta/2024/May/09/this-japanese-korean-modern-caf%C3%A9-in-kolkata-offers-lavish-meal'
+          }
+          session=requests.Session()
+          session.headers['User-Agent']='Mozilla/5.0'
+          result=[]
+          for source,url in sources.items():
+            try:
+              r=session.get(url,timeout=25); r.raise_for_status()
+              (root/(source+'.html')).write_text(r.text)
+              soup=BeautifulSoup(r.text,'html.parser')
+              urls=[]
+              for img in soup.find_all('img'):
+                src=img.get('src','') or img.get('data-src','')
+                if any(h in src for h in ['zmtcdn.com/data/pictures','ugc.production.linktr.ee','assettype.com/indulgexpress']):
+                  urls.append((src,img.get('alt','')))
+              for src in re.findall(r'https[^\s<>"\\]+(?:\.jpeg|\.jpg|\.png)[^\s<>"\\]*',r.text):
+                src=html.unescape(src).replace('\\u002F','/')
+                if any(h in src for h in ['zmtcdn.com/data/pictures','ugc.production.linktr.ee','assettype.com/indulgexpress']): urls.append((src,''))
+              unique={}
+              for src,alt in urls:
+                key=src.split('?')[0]
+                if key not in unique: unique[key]=(src,alt)
+              for i,(key,(src,alt)) in enumerate(unique.items()):
+                if i>=25: break
+                item={'source':source,'id':source+'-'+str(i),'url':key,'alt':alt,'status':'reference-only; rights not cleared'}
+                try:
+                  rr=session.get(key,timeout=20); rr.raise_for_status()
+                  p=root/'images'/(item['id']+'.jpg')
+                  import io
+                  im=Image.open(io.BytesIO(rr.content)).convert('RGB')
+                  if min(im.size)<150: continue
+                  im.thumbnail((1500,1500)); im.save(p,quality=90)
+                  item['file']=str(p); item['size']=list(im.size)
+                  result.append(item)
+                except Exception as e: print('IMAGE_SKIP',key,str(e)[:100])
+              print('SOURCE',source,r.status_code,'images',len(unique))
+            except Exception as e: print('SOURCE_ERROR',source,str(e))
+          (root/'assets.json').write_text(json.dumps(result,indent=2))
+          print('ASSETS_JSON',json.dumps(result))
+          if result:
+            cols=4; cell=280; rows=(len(result)+cols-1)//cols
+            sheet=Image.new('RGB',(cols*cell,rows*(cell+42)),'white'); d=ImageDraw.Draw(sheet)
+            for n,it in enumerate(result):
+              im=Image.open(it['file']); im=ImageOps.contain(im,(cell-12,cell-12))
+              x=(n%cols)*cell; y=(n//cols)*(cell+42)
+              sheet.paste(im,(x+(cell-im.width)//2,y))
+              d.text((x+6,y+cell),it['id']+' '+str(it['size']),fill='black')
+              d.text((x+6,y+cell+15),it['alt'][:38],fill='black')
+            sheet.save(root/'contact-sheet.jpg',quality=90)
+          PY
+          python /tmp/inspect.py
+      - name: Save research references
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-assets
+          path: research/
+          retention-days: 3
