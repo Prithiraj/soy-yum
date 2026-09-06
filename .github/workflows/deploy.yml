@@ -1,0 +1,89 @@
+name: Test and deploy Soy Yum
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: soy-yum-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build and QA tools
+        run: |
+          python -m pip install -r requirements.txt playwright==1.55.0
+          npm install --prefix /tmp/soy-qa --no-audit --no-fund axe-core@4.10.3 lighthouse@12.8.2
+      - name: Build and validate
+        run: |
+          python scripts/build.py
+          python tests/static.py
+          node --check assets/app.js
+      - name: Browser and accessibility checks
+        run: |
+          mkdir -p _preview/soy-yum
+          cp -R _site/. _preview/soy-yum/
+          python -m http.server 8765 --bind 127.0.0.1 --directory _preview > /tmp/soy-server.log 2>&1 &
+          for n in $(seq 1 20); do curl -fsS http://127.0.0.1:8765/soy-yum/ > /dev/null && break || sleep 1; done
+          python tests/browser.py
+      - name: Lighthouse mobile lab audit
+        run: |
+          /tmp/soy-qa/node_modules/.bin/lighthouse http://127.0.0.1:8765/soy-yum/ --chrome-flags="--headless --no-sandbox" --output=json --output=html --output-path=./test-results/lighthouse --quiet
+          python - <<'PY'
+          import json,pathlib
+          r=json.loads(pathlib.Path('test-results/lighthouse.report.json').read_text())
+          print('LAB SCORES', {k:v['score'] for k,v in r['categories'].items()})
+          print('LAB METRICS', {k:r['audits'][k].get('displayValue') for k in ['first-contentful-paint','largest-contentful-paint','cumulative-layout-shift','total-blocking-time']})
+          print('SEO is deliberately limited by the noindex independent-preview policy.')
+          PY
+      - name: Upload QA results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: soy-yum-qa
+          path: test-results/
+          retention-days: 14
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Verify live pages
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          python - <<'PY'
+          import os,time,urllib.request
+          base=os.environ['SITE_URL'].rstrip('/')+'/'
+          for path,needle in [('',b'Sushi. Sizzle.'),('menu/',b'Menu highlights, not a live menu.'),('credits/',b'Clear sources.'),('assets/app.js',b'soy:action')]:
+            for attempt in range(12):
+              try:
+                with urllib.request.urlopen(base+path,timeout=30) as r:
+                  body=r.read()
+                  assert r.status==200 and needle in body,(path,r.status,'content mismatch')
+                  print('LIVE PASS',base+path,r.status)
+                break
+              except Exception:
+                if attempt==11: raise
+                time.sleep(5)
+          PY
