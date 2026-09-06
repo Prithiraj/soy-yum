@@ -21,10 +21,12 @@
 <meta property="og:image:alt" content="Soy Yum. Sushi, Korean BBQ and something sweet in Hindustan Park, Kolkata. Website design preview.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="{{base}}assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="{{base}}assets/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{base}}assets/style.css">
+<!-- Typography enhances the ready-to-read system-font layout; it must not block first paint. -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=DM+Serif+Display:ital@0;1&amp;display=swap" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=DM+Serif+Display:ital@0;1&amp;display=swap" rel="stylesheet"></noscript>
 <script src="{{base}}assets/app.js" defer></script>
 {{jsonld}}
 </head>
