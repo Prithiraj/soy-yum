@@ -8,8 +8,10 @@ OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
 BASE=os.getenv('TEST_URL','http://127.0.0.1:8765/soy-yum/')
 AXE=os.getenv('AXE_PATH','/tmp/soy-qa/node_modules/axe-core/axe.min.js')
 report={'base':BASE,'checks':[],'axe':{}}
+def save_report():
+    (OUT/'browser-report.json').write_text(json.dumps(report,indent=2))
 def log(name):
-    report['checks'].append(name);print('PASS',name)
+    report['checks'].append(name);print('PASS',name);save_report()
 def ready(page):
     page.evaluate("async () => {for (const image of document.querySelectorAll('img[src]')) {image.loading='eager';} await Promise.all([...document.images].filter(i=>i.src).map(i=>i.decode().catch(()=>{})));}")
     page.evaluate('document.fonts.ready')
@@ -21,19 +23,21 @@ with sync_playwright() as p:
             errors=[];page.on('pageerror',lambda e: errors.append(str(e)))
             response=page.goto(BASE+route,wait_until='networkidle');assert response.status==200
             ready(page)
+            label=('home' if not route else 'menu')+f'-{width}'
+            if width in (320,390,1440):page.screenshot(path=str(OUT/(label+'.png')),full_page=True)
             assert not errors,errors
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'),(width,route,'overflow')
             assert page.locator('h1').count()==1
             assert page.locator('img[src]').evaluate_all('(images)=>images.every(i=>i.complete && i.naturalWidth>0)'),(width,route,'broken photo')
-            assert page.locator('a[href="tel:+918100581884"]').first.is_visible()
-            if width in (390,1440):
-                label=('home' if not route else 'menu')+f'-{width}'
-                page.screenshot(path=str(OUT/(label+'.png')),full_page=True)
-                if width==1440 and Path(AXE).exists():
-                    page.add_script_tag(path=AXE)
-                    result=page.evaluate("async()=>await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}})")
-                    report['axe'][label]={'violations':result['violations'],'passes':len(result['passes']),'incomplete':len(result['incomplete'])}
-                    assert not result['violations'],[(v['id'],v['impact'],[n['target'] for n in v['nodes']]) for v in result['violations']]
+            # The first call link is correctly hidden inside collapsed mobile navigation.
+            # The hero/mobile action bar must still expose a genuine phone destination.
+            assert page.locator('a[href="tel:+918100581884"]:visible').count()>0,(width,route,'visible call action')
+            if width==1440 and Path(AXE).exists():
+                page.add_script_tag(path=AXE)
+                result=page.evaluate("async()=>await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}})")
+                report['axe'][label]={'violations':result['violations'],'passes':len(result['passes']),'incomplete':len(result['incomplete'])}
+                save_report()
+                assert not result['violations'],[(v['id'],v['impact'],[n['target'] for n in v['nodes']]) for v in result['violations']]
             if width==390 and not route:
                 toggle=page.locator('.nav-toggle');toggle.click();assert toggle.get_attribute('aria-expanded')=='true'
                 assert page.locator('.navigation a').first.is_visible()
@@ -58,7 +62,7 @@ with sync_playwright() as p:
         assert page.locator('.navigation a').first.is_visible()
         assert page.locator('main').is_visible()
         if route:assert page.locator('.menu-item:visible').count()==5
-        assert page.locator('a[href="tel:+918100581884"]').first.is_visible()
+        assert page.locator('a[href="tel:+918100581884"]:visible').count()>0
         log(f'{route or "home"}: no-JavaScript fallback')
         context.close()
     context=browser.new_context(reduced_motion='reduce',viewport={'width':390,'height':844})
@@ -76,8 +80,9 @@ with sync_playwright() as p:
         if Path(AXE).exists():
             page.add_script_tag(path=AXE);result=page.evaluate("async()=>await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}})")
             report['axe'][route]={'violations':result['violations'],'passes':len(result['passes']),'incomplete':len(result['incomplete'])}
+            save_report()
             assert not result['violations'],[(v['id'],v['impact']) for v in result['violations']]
         log(route+' mobile and accessibility checks');page.close()
     browser.close()
-(OUT/'browser-report.json').write_text(json.dumps(report,indent=2))
+save_report()
 print(f'PASS: {len(report["checks"])} browser check groups. Axe results written to test-results/.')
