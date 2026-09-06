@@ -9,14 +9,14 @@ permissions:
 jobs:
   inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - name: Collect publicly published source references
         run: |
           python -m pip install --quiet pillow requests beautifulsoup4
           mkdir -p research/images
-          cat > /tmp/inspect.py <<'PY'
-          import requests, re, json, pathlib, html
+          cat > /tmp/collect_assets.py <<'PY'
+          import requests, re, json, pathlib, html, io
           from bs4 import BeautifulSoup
           from PIL import Image, ImageOps, ImageDraw
           root=pathlib.Path('research')
@@ -50,9 +50,8 @@ jobs:
                 if i>=25: break
                 item={'source':source,'id':source+'-'+str(i),'url':key,'alt':alt,'status':'reference-only; rights not cleared'}
                 try:
-                  rr=session.get(key,timeout=20); rr.raise_for_status()
+                  rr=session.get(key,timeout=15); rr.raise_for_status()
                   p=root/'images'/(item['id']+'.jpg')
-                  import io
                   im=Image.open(io.BytesIO(rr.content)).convert('RGB')
                   if min(im.size)<150: continue
                   im.thumbnail((1500,1500)); im.save(p,quality=90)
@@ -74,7 +73,7 @@ jobs:
               d.text((x+6,y+cell+15),it['alt'][:38],fill='black')
             sheet.save(root/'contact-sheet.jpg',quality=90)
           PY
-          python /tmp/inspect.py
+          python /tmp/collect_assets.py
       - name: Save research references
         uses: actions/upload-artifact@v4
         with:
